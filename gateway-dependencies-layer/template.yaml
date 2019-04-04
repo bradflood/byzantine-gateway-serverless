@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  gateway-dependencies-layer
+
+  This is a SAM project to manage a Lambda layer containing the Fabric SDK and associated nodejs dependencies for the byzantine-gateway set of Lambda functions
+
+  Reference: https://aws.amazon.com/blogs/compute/working-with-aws-lambda-and-lambda-layers-in-aws-sam/
+  
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ByzantineDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: byzantine-gateway-dependencies
+      ContentUri: dependencies/
+      Description: node dependencies for byzantine-gateway Lambda functions
+      CompatibleRuntimes: 
+        - nodejs8.10
+      RetentionPolicy: Retain

@@ -1,0 +1,27 @@
+{
+  "name": "byzantine-gateway",
+  "version": "0.0.1-SNAPSHOT",
+  "description": "Gateway access to the HLF channel for the Byzantine Flu data",
+  "main": "index.js",
+  "keywords": [
+    "hyperledger",
+    "http",
+    "websocket",
+    "gateway",
+    "React",
+    "SPA"
+  ],
+  "author": "Adi Rosenblum",
+  "license": "ISC",
+  "dependencies": {
+    "asn1.js": "^5.0.1",
+    "body-parser": "^1.18.3",
+    "fabric-client": "^1.4.0",
+    "js-sha256": "^0.9.0",
+    "log4js": "^0.6.38",
+    "pkcs11js": "^1.0.17"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}

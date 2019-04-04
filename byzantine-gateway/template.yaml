@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  byzantine-gateway
+
+  SAM Template for byzantine-gateway
+  
+Globals:
+  Function:
+    Timeout: 30
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs8.10
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /hello
+            Method: get
+  QueryAllLabsFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: gateway/app
+      Handler: query.getAllLabs
+      Runtime: nodejs8.10
+      Layers:
+        - !Ref ByzantineDependenciesLayer
+      Events:
+        QueryAllLabs:
+          Type: Api 
+          Properties:
+            Path: /queryAllLabs
+            Method: get
+  ByzantineDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: byzantine-gateway-dependencies
+      ContentUri: dependencies/
+      Description: node dependencies for byzantine-gateway Lambda functions
+      CompatibleRuntimes: 
+        - nodejs8.10
+      RetentionPolicy: Retain
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+  QueryAllLabsApi:
+    Description: "API Gateway endpoint URL for Prod stage for QueryAllLabs functions"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/queryAllLabs/"
+  QueryAllLabsFunction:
+    Description: "QueryAllLabs Lambda Function ARN"
+    Value: !GetAtt QueryAllLabsFunction.Arn
+  QueryAllLabsFunctionIamRole:
+    Description: "Implicit IAM Role created for QueryAllLabs function"
+    Value: !GetAtt QueryAllLabsFunctionRole.Arn
