@@ -25,27 +25,16 @@ Resources:
   QueryAllLabsFunction:
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: gateway/app
+      CodeUri: gateway
       Handler: query.getAllLabs
       Runtime: nodejs8.10
-      Layers:
-        - !Ref ByzantineDependenciesLayer
       Events:
         QueryAllLabs:
           Type: Api 
           Properties:
             Path: /queryAllLabs
             Method: get
-  ByzantineDependenciesLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: byzantine-gateway-dependencies
-      ContentUri: dependencies/
-      Description: node dependencies for byzantine-gateway Lambda functions
-      CompatibleRuntimes: 
-        - nodejs8.10
-      RetentionPolicy: Retain
-
+  
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

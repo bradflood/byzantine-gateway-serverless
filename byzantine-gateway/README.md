@@ -1,23 +1,21 @@
-# sam-app
+# byzantine-gateway
 
-This is a sample template for sam-app - Below is a brief explanation of what we have generated for you:
+This is a Serverless Application Model project implementing the byzantine-gateway. The folder structure:
 
 ```bash
 .
 ├── README.MD                   <-- This instructions file
-├── event.json                  <-- API Gateway Proxy Integration event payload
-├── hello_world                 <-- Source code for a lambda function
-│   └── app.js                  <-- Lambda function code
-│   └── package.json            <-- NodeJS dependencies and scripts
-│   └── tests                   <-- Unit tests
-│       └── unit
-│           └── test-handler.js
+├── apigateway-event.json       <-- API Gateway Proxy Integration event payload
+├── gateway                     <-- Source code for a lambda function
+│   └── query.js                <-- Lambda function code
+│   └── package.json            <-- NodeJS dependencies and scripts (Note: when layers are involved, package.json is not part of the function)
 ├── template.yaml               <-- SAM template
 ```
 
 ## Requirements
 
 * AWS CLI already configured with Administrator permission
+* SAM CLI already configured
 * [NodeJS 8.10+ installed](https://nodejs.org/en/download/)
 * [Docker installed](https://www.docker.com/community-edition)
 
@@ -25,10 +23,16 @@ This is a sample template for sam-app - Below is a brief explanation of what we 
 
 ### Local development
 
+**Generating a local sample event payload 
+
+```bash
+sam local generate-event apigateway aws-proxy > apigateway-event.json
+```
+
 **Invoking function locally using a local sample payload**
 
 ```bash
-sam local invoke HelloWorldFunction --event event.json
+sam local invoke QueryAllLabsFunction --event apigateway-event.json
 ```
  
 **Invoking function locally through local API Gateway**
@@ -37,17 +41,17 @@ sam local invoke HelloWorldFunction --event event.json
 sam local start-api
 ```
 
-If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/hello`
+If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/queryAllLabs`
 
 **SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
 
 ```yaml
 ...
 Events:
-    HelloWorld:
-        Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+    QueryAllLabs:
+        Type: Api 
         Properties:
-            Path: /hello
+            Path: /queryAllLabs
             Method: get
 ```
 
@@ -57,10 +61,10 @@ AWS Lambda NodeJS runtime requires a flat folder with all dependencies including
 
 ```yaml
 ...
-    HelloWorldFunction:
+    QueryAllLabsFunction:
         Type: AWS::Serverless::Function
         Properties:
-            CodeUri: hello-world/
+            CodeUri: gateway/
             ...
 ```
 
@@ -83,7 +87,7 @@ Next, the following command will create a Cloudformation Stack and deploy your S
 ```bash
 sam deploy \
     --template-file packaged.yaml \
-    --stack-name sam-app \
+    --stack-name byzantine-gateway-sam \
     --capabilities CAPABILITY_IAM
 ```
 
@@ -93,8 +97,8 @@ After deployment is complete you can run the following command to retrieve the A
 
 ```bash
 aws cloudformation describe-stacks \
-    --stack-name sam-app \
-    --query 'Stacks[].Outputs[?OutputKey==`HelloWorldApi`]' \
+    --stack-name byzantine-gateway-sam \
+    --query 'Stacks[].Outputs[?OutputKey==`QueryAllLabsApi`]' \
     --output table
 ``` 
 
@@ -125,7 +129,7 @@ npm run test
 In order to delete our Serverless Application recently deployed you can use the following AWS CLI Command:
 
 ```bash
-aws cloudformation delete-stack --stack-name sam-app
+aws cloudformation delete-stack --stack-name byzantine-gateway-sam
 ```
 
 ## Bringing to the next level
@@ -136,7 +140,7 @@ Here are a few things you can try to get more acquainted with building serverles
 
 * Uncomment lines on `app.js`
 * Build the project with ``sam build --use-container``
-* Invoke with ``sam local invoke HelloWorldFunction --event event.json``
+* Invoke with ``sam local invoke HelloWorldFunction --event apigateway-event.json``
 * Update tests
 
 ### Create an additional API resource
@@ -174,7 +178,7 @@ All commands used throughout this document
 
 ```bash
 # Invoke function locally with event.json as an input
-sam local invoke HelloWorldFunction --event event.json
+sam local invoke QueryAllLabsFunction --event apigateway-event.json
 
 # Run API Gateway locally
 sam local start-api
@@ -190,17 +194,19 @@ sam package \
 # Deploy SAM template as a CloudFormation stack
 sam deploy \
     --template-file packaged.yaml \
-    --stack-name sam-app \
+    --stack-name byzantine-gateway-sam \
     --capabilities CAPABILITY_IAM
 
 # Describe Output section of CloudFormation stack previously created
 aws cloudformation describe-stacks \
-    --stack-name sam-app \
-    --query 'Stacks[].Outputs[?OutputKey==`HelloWorldApi`]' \
+    --stack-name byzantine-gateway-sam \
+    --query 'Stacks[].Outputs[?OutputKey==`QueryAllLabsApi`]' \
     --output table
 
 # Tail Lambda function Logs using Logical name defined in SAM Template
-sam logs -n HelloWorldFunction --stack-name sam-app --tail
+sam logs -n QueryAllLabsFunction --stack-name byzantine-gateway-sam --tail
 ```
 
 **NOTE**: Alternatively this could be part of package.json scripts section.
+
+###Attribution: the layout of this document was generated during "sam init"
